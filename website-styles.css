@@ -213,6 +213,7 @@ body {
 
 .extension-preview {
    text-align: left;
+   color: var(--gray-800);
 }
 
 .extension-preview div {
