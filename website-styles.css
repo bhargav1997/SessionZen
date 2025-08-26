@@ -30,7 +30,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+   scroll-behavior: smooth;
 }
 
 body {
@@ -105,10 +105,35 @@ body {
 
 /* Hero Section */
 .hero {
-   background: var(--gradient-primary);
+   background: linear-gradient(120deg, var(--primary), var(--secondary), var(--accent-1));
+   background-size: 300% 300%;
+   animation: gradientShift 10s ease infinite;
    color: var(--neutral-light);
    padding: 4rem 0;
    text-align: center;
+}
+
+@keyframes gradientShift {
+   0% {
+      background-position: 0% 50%;
+   }
+   50% {
+      background-position: 100% 50%;
+   }
+   100% {
+      background-position: 0% 50%;
+   }
+}
+
+.reveal {
+   opacity: 0;
+   transform: translateY(30px);
+   transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.active {
+   opacity: 1;
+   transform: translateY(0);
 }
 
 .hero-content h1 {
@@ -150,6 +175,31 @@ body {
 .btn-primary {
    background: var(--neutral-light);
    color: var(--primary);
+   position: relative;
+   overflow: hidden;
+   z-index: 0; /* create stacking context */
+}
+
+.btn-primary::after {
+   content: "";
+   position: absolute;
+   top: 0;
+   left: -100%;
+   width: 100%;
+   height: 100%;
+   background: linear-gradient(120deg, var(--accent-4), var(--accent-1));
+   transition: left 0.4s ease;
+   z-index: -1; /* push behind text */
+}
+
+.btn-primary span,
+.btn-primary {
+   position: relative;
+   z-index: 1; /* keep text above */
+}
+
+.btn-primary:hover::after {
+   left: 0;
 }
 
 .btn-primary:hover {
@@ -248,16 +298,18 @@ body {
 }
 
 .feature-card {
-   background: var(--neutral-light);
-   padding: 2rem;
-   border-radius: 12px;
+   background: rgba(255, 255, 255, 0.15);
+   backdrop-filter: blur(10px);
+   border: 1px solid rgba(255, 255, 255, 0.2);
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+   padding: 16px;
+   border-radius: 10px;
    text-align: center;
-   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-   transition: transform 0.3s ease;
 }
 
 .feature-card:hover {
-   transform: translateY(-4px);
+   transform: translateY(-6px) scale(1.02);
+   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .feature-icon {
@@ -323,6 +375,11 @@ body {
    font-weight: 700;
    color: var(--accent-1);
    margin-bottom: 0.5rem;
+   transition: color 0.3s ease;
+}
+
+.stat-number:hover {
+   color: var(--secondary);
 }
 
 .stat-label {

@@ -4,27 +4,930 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SessionZen - Advanced Tab Management & Productivity Extension</title>
     <meta name="description"
         content="Professional tab management with focus mode, session saving, analytics, and smart organization. Transform your browsing chaos into productive sessions.">
-    <link rel="stylesheet" href="website-styles.css">
+
+    <title>SessionZen - Advanced Tab Management for Chrome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Modern Color Palette */
+            --primary: #1A7F8A;
+            --primary-dark: #12646D;
+            --secondary: #3F4E9F;
+            --accent: #6EC4B3;
+            --accent-light: #9AE8D9;
+            --neutral-dark: #0A0F1D;
+            --neutral-light: #FFFFFF;
+            --gray-100: #F5F7FA;
+            --gray-200: #E4E9F2;
+            --gray-600: #8C8C8C;
+            --gray-800: #2D3748;
+
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            --gradient-dark: linear-gradient(135deg, var(--neutral-dark) 0%, #1A2332 100%);
+
+            /* Effects */
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: var(--neutral-light);
+            overflow-x: hidden;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--neutral-dark);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            padding: 0.75rem 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--gray-800);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--neutral-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: var(--neutral-light);
+        }
+
+        .btn-large {
+            padding: 1.25rem 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: var(--gradient-accent);
+            opacity: 0.2;
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            left: -100px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            opacity: 0.15;
+            filter: blur(70px);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 650px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--gray-100);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge i {
+            color: var(--accent);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: var(--neutral-dark);
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Browser Mockup */
+        .browser-mockup {
+            background: var(--neutral-light);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            max-width: 800px;
+            margin: 0 auto;
+            overflow: hidden;
+            transform: perspective(1000px) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+
+        .browser-mockup:hover {
+            transform: perspective(1000px) rotateX(0deg);
+        }
+
+        .browser-header {
+            background: var(--gray-100);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .browser-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .browser-dots span:nth-child(1) {
+            background: #FF5F56;
+        }
+
+        .browser-dots span:nth-child(2) {
+            background: #FFBD2E;
+        }
+
+        .browser-dots span:nth-child(3) {
+            background: #27C93F;
+        }
+
+        .browser-content {
+            padding: 2rem;
+            background: var(--gray-100);
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .extension-preview {
+            width: 100%;
+            max-width: 400px;
+            background: var(--neutral-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-radius: 8px;
+            background: var(--gray-100);
+            transition: all 0.3s ease;
+        }
+
+        .preview-item:hover {
+            transform: translateX(5px);
+            background: var(--gray-200);
+        }
+
+        .preview-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: var(--neutral-light);
+        }
+
+        .preview-text {
+            font-size: 0.9rem;
+            color: var(--gray-800);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+            background: var(--gray-100);
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: var(--primary);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neutral-dark);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--neutral-light);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 0;
+            background: var(--gradient-primary);
+            transition: height 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-card:hover::before {
+            height: 100%;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            width: 70px;
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            color: var(--neutral-light);
+        }
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-dark);
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: var(--gray-600);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .feature-link:hover {
+            gap: 0.75rem;
+        }
+
+        /* FAQ Section */
+
+        .faq-container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            /* box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); */
+            overflow: hidden;
+            padding: 2rem;
+            margin: auto;
+        }
+
+        .faq-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            color: #1A7F8A;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #0A0F1D;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: #6c757d;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .faq-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .faq-item {
+            background: #F5F7FA;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); 
+        }
+
+        .faq-item:hover {
+            background: #E4E9F2;
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #0A0F1D;
+        }
+
+        .faq-question i {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer-content {
+            padding: 0 1.5rem 1.5rem;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .faq-question {
+                padding: 1.25rem;
+                font-size: 1rem;
+            }
+
+            .faq-answer-content {
+                padding: 0 1.25rem 1.25rem;
+            }
+        }
+
+        /* Download Section */
+        .download {
+            padding: 6rem 0;
+            background: var(--gradient-dark);
+            color: var(--neutral-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            opacity: 0.1;
+            filter: blur(60px);
+        }
+
+        .download-content {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .download-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .download-subtitle {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 2.5rem;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .download-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-icon {
+            font-size: 1.25rem;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: var(--neutral-light);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 16px;
+            background: var(--gray-100);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: var(--neutral-light);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: var(--gray-600);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--neutral-dark);
+            color: var(--neutral-light);
+            padding: 4rem 0 2rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neutral-light);
+            text-decoration: none;
+        }
+
+        .footer-description {
+            opacity: 0.7;
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--neutral-light);
+        }
+
+        .footer-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-links-list a {
+            color: var(--neutral-light);
+            text-decoration: none;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links-list a:hover {
+            opacity: 1;
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 2rem;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-stats {
+                gap: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .download-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .browser-mockup {
+                transform: none;
+            }
+        }
+
+        /* Animation utilities */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
 </head>
 
 <body>
     <!-- Header -->
-    <header class="header">
+    <header class="header" id="header">
         <div class="container">
             <div class="nav">
-                <div class="logo">
+                <a href="#" class="logo">
                     <span class="logo-icon">🧘‍♂️</span>
                     <span class="logo-text">SessionZen</span>
-                </div>
+                </a>
+
                 <nav class="nav-links">
                     <a href="#features">Features</a>
+                    <a href="#faq">FAQ</a>
                     <a href="#download">Download</a>
-                    <a href="about.html">About</a>
-                    <a href="privacy-policy.html">Privacy</a>
                 </nav>
+
+                <div class="nav-cta">
+                    <a href="#download" class="btn btn-primary">
+                        <i class="fas fa-download btn-icon"></i>
+                        Get SessionZen
+                    </a>
+                </div>
             </div>
         </div>
     </header>
@@ -32,32 +935,71 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <div class="hero-content">
-                <h1>Master Your Tabs, Master Your Focus</h1>
+            <div class="hero-content fade-in">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i>
+                    <span>Most Popular Productivity Extension 2025</span>
+                </div>
+
+                <h1 class="hero-title">Master Your Tabs,<br>Master Your Focus</h1>
+
                 <p class="hero-subtitle">Professional tab management with focus mode, session saving, analytics, and
                     smart organization. Transform your browsing chaos into productive sessions.</p>
+
                 <div class="hero-buttons">
-                    <a href="#download" class="btn btn-primary">
-                        <span>🚀</span> Get SessionZen Free
+                    <a href="#download" class="btn btn-primary btn-large">
+                        <i class="fas fa-download btn-icon"></i>
+                        Get SessionZen Free
                     </a>
-                    <a href="#features" class="btn btn-secondary">
-                        <span>📋</span> View Features
+                    <a href="#features" class="btn btn-secondary btn-large">
+                        <i class="fas fa-play-circle btn-icon"></i>
+                        Watch Demo
                     </a>
                 </div>
-            </div>
-            <div class="hero-image">
-                <div class="browser-mockup">
-                    <div class="browser-header">
-                        <div class="browser-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <div class="browser-title">SessionZen Extension</div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">500K+</div>
+                        <div class="stat-label">Active Users</div>
                     </div>
-                    <div class="browser-content">
-                        <div class="extension-preview">
-                            <div class="tab-count">📊 12 tabs</div>
-                            <div class="focus-mode">🎯 Focus Mode: ON</div>
-                            <div class="session-saved">💾 Work Session Saved</div>
+                    <div class="stat-item">
+                        <div class="stat-number">4.9/5</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">95%</div>
+                        <div class="stat-label">Memory Saved</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="browser-mockup fade-in">
+                <div class="browser-header">
+                    <div class="browser-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <div class="browser-content">
+                    <div class="extension-preview">
+                        <div class="preview-item">
+                            <div class="preview-icon">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="preview-text">📊 12 tabs organized across 3 projects</div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-icon">
+                                <i class="fas fa-bullseye"></i>
+                            </div>
+                            <div class="preview-text">🎯 Focus Mode: ON - 2h 15m of focused work</div>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-icon">
+                                <i class="fas fa-save"></i>
+                            </div>
+                            <div class="preview-text">💾 Work Session Saved - 95% memory optimized</div>
                         </div>
                     </div>
                 </div>
@@ -68,41 +1010,220 @@
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
-            <h2>Powerful Features for Productive Browsing</h2>
+            <div class="section-header fade-in">
+                <span class="section-label">Powerful Features</span>
+                <h2 class="section-title">Designed for Maximum Productivity</h2>
+                <p class="section-subtitle">SessionZen combines powerful tab management with focus-enhancing tools to
+                    transform your browsing experience.</p>
+            </div>
+
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h3>Session Management</h3>
-                    <p>Save and restore tab groups as named sessions. Perfect for different projects, research topics,
-                        or work contexts.</p>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Smart Session Management</h3>
+                        <p class="feature-description">Save and restore tab groups as named sessions. Perfect for
+                            different projects, research topics, or work contexts.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Focus Mode</h3>
-                    <p>Block distracting websites during work hours. Customizable schedules and beautiful blocking pages
-                        keep you focused.</p>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Deep Focus Mode</h3>
+                        <p class="feature-description">Block distracting websites during work hours. Customizable
+                            schedules and beautiful blocking pages keep you focused.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Tab Analytics</h3>
-                    <p>Track your browsing patterns, tab usage, and productivity metrics. Understand your digital habits
-                        better.</p>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-volume-mute"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Bulk Tab Actions</h3>
+                        <p class="feature-description">Mute/unmute all tabs with one click, close all tabs from a
+                            domain, or perform other batch operations effortlessly.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">💾</div>
-                    <h3>Memory Optimization</h3>
-                    <p>Auto-suspend inactive tabs to save 95% memory usage. Keep your browser fast and responsive.</p>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Local Data Storage</h3>
+                        <p class="feature-description">All your data stays locally on your device. No external servers,
+                            no tracking, no data collection. Your privacy is protected.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔗</div>
-                    <h3>Smart Organization</h3>
-                    <p>Auto-group tabs by domain, detect duplicates, and get warnings when tab limits are exceeded.</p>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Easy Import/Export</h3>
+                        <p class="feature-description">Export your sessions to backup or transfer between browsers.
+                            Import sessions with a single click.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Privacy First</h3>
-                    <p>All data stays on your device. No external servers, no tracking, no data collection. Your privacy
-                        is protected.</p>
+
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="feature-content">
+                        <h3 class="feature-title">Smart Organization</h3>
+                        <p class="feature-description">Auto-group tabs by domain, detect duplicates, and get warnings
+                            when tab limits are exceeded.</p>
+                        <a href="#faq" class="feature-link">
+                            Learn more
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-container">
+        <div class="faq-header">
+            <span class="section-label">Frequently Asked Questions</span>
+            <h2 class="section-title">Everything You Need to Know</h2>
+            <p class="section-subtitle">Find answers to common questions about SessionZen's features, pricing, and
+                functionality.</p>
+        </div>
+
+        <div class="faq-grid">
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Is SessionZen completely free?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Yes! SessionZen is 100% free with no hidden payments, subscriptions, or premium features. We
+                            believe productivity tools should be accessible to everyone.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Where is my data stored?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>All your data is stored locally on your device using Chrome's storage API. Nothing is sent to
+                            external servers, ensuring complete privacy and security.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How do I export/import my sessions?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>You can export your sessions as JSON files with a single click from the SessionZen menu. To
+                            import, simply drag and drop the JSON file into the extension popup or use the import
+                            option.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Can I mute all tabs at once?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Absolutely! SessionZen includes bulk actions that allow you to mute/unmute all tabs, close
+                            all tabs from specific domains, or perform other batch operations with one click.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How does the focus mode work?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Focus mode allows you to block distracting websites during specified times. You can customize
+                            the schedule and which sites to block. When enabled, attempts to visit blocked sites will
+                            show a focus-friendly landing page.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Can I edit saved sessions?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Yes! You can easily add, remove, or edit tabs within any saved session. SessionZen makes it
+                            simple to keep your sessions organized and up-to-date.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>Is SessionZen available for other browsers?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>Currently, SessionZen is exclusively available for Chrome. However, we're working on versions
+                            for Firefox and Edge that will be released soon.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    <span>How does SessionZen help with memory usage?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        <p>SessionZen includes a memory optimization feature that automatically suspends inactive tabs,
+                            reducing Chrome's memory usage by up to 95% while keeping your tabs readily available.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -111,26 +1232,30 @@
     <!-- Download Section -->
     <section id="download" class="download">
         <div class="container">
-            <div class="download-content">
-                <h2>Ready to Transform Your Browsing?</h2>
-                <p>Join thousands of users who have already improved their productivity with SessionZen.</p>
+            <div class="download-content fade-in">
+                <h2 class="download-title">Ready to Transform Your Browsing?</h2>
+                <p class="download-subtitle">Join thousands of users who have already improved their productivity with
+                    SessionZen.</p>
+
                 <div class="download-buttons">
-                    <a href="https://chromewebstore.google.com/detail/cdcljemgcagajiifokjfnpcjllfbdonj?utm_source=item-share-cb" 
-                       class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
-                        <span>🌐</span> Install from Chrome Web Store
+                    <a href="https://chromewebstore.google.com/detail/cdcljemgcagajiifokjfnpcjllfbdonj"
+                        class="btn btn-primary btn-large" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-chrome btn-icon"></i>
+                        Add to Chrome - It's Free
                     </a>
                 </div>
+
                 <div class="download-info">
                     <div class="info-item">
-                        <span class="info-icon">✅</span>
-                        <span>100% Free</span>
+                        <i class="fas fa-check-circle info-icon"></i>
+                        <span>100% Free Forever</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-icon">🔒</span>
+                        <i class="fas fa-shield-alt info-icon"></i>
                         <span>Privacy Protected</span>
                     </div>
                     <div class="info-item">
-                        <span class="info-icon">⚡</span>
+                        <i class="fas fa-bolt info-icon"></i>
                         <span>Instant Setup</span>
                     </div>
                 </div>
@@ -142,19 +1267,23 @@
     <section class="stats">
         <div class="container">
             <div class="stats-grid">
-                <div class="stat-item">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-memory stat-icon"></i>
                     <div class="stat-number">95%</div>
                     <div class="stat-label">Memory Reduction</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-folder-open stat-icon"></i>
                     <div class="stat-number">50+</div>
                     <div class="stat-label">Tabs Managed</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-clock stat-icon"></i>
                     <div class="stat-number">3hrs</div>
                     <div class="stat-label">Daily Focus Time</div>
                 </div>
-                <div class="stat-item">
+                <div class="stat-card fade-in">
+                    <i class="fas fa-user-shield stat-icon"></i>
                     <div class="stat-number">100%</div>
                     <div class="stat-label">Privacy Protected</div>
                 </div>
@@ -167,33 +1296,125 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <div class="logo">
+                    <a href="#" class="footer-logo">
                         <span class="logo-icon">🧘‍♂️</span>
-                        <span class="logo-text">SessionZen</span>
-                    </div>
-                    <p>Advanced Tab Management & Productivity Extension</p>
+                        <span>SessionZen</span>
+                    </a>
+                    <p class="footer-description">Advanced Tab Management & Productivity Extension for modern
+                        professionals.</p>
                 </div>
+
                 <div class="footer-links">
                     <div class="footer-section">
                         <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <a href="#download">Download</a>
-                        <a href="https://chromewebstore.google.com/detail/cdcljemgcagajiifokjfnpcjllfbdonj?utm_source=item-share-cb" 
-                           target="_blank" rel="noopener noreferrer">Chrome Store</a>
+                        <div class="footer-links-list">
+                            <a href="#features">Features</a>
+                            <a href="#download">Download</a>
+                            <a href="#faq">FAQ</a>
+                        </div>
                     </div>
+
                     <div class="footer-section">
                         <h4>Company</h4>
-                        <a href="about.html">About Us</a>
-                        <a href="privacy-policy.html">Privacy Policy</a>
-                        <a href="mailto:support@sessionzen.com">Contact</a>
+                        <div class="footer-links-list">
+                            <a href="about.html">About Us</a>
+                            <a href="privacy-policy.html">Privacy Policy</a>
+                            <a href="#">Terms of Service</a>
+                            <a href="#">Contact</a>
+                        </div>
                     </div>
                 </div>
             </div>
+
             <div class="footer-bottom">
-                <p>&copy; 2024 SessionZen. All rights reserved.</p>
+                <p>&copy; 2025 SessionZen. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', function () {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Fade-in animation on scroll
+        function checkFade() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const elementVisible = 150;
+                if (elementTop < window.innerHeight - elementVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', checkFade);
+        window.addEventListener('load', checkFade);
+
+        // FAQ accordion functionality
+        // document.querySelectorAll('.faq-question').forEach(question => {
+        //     question.addEventListener('click', () => {
+        //         const item = question.parentElement;
+        //         item.classList.toggle('active');
+        //     });
+        // });
+
+        // FAQ accordion functionality
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const isActive = item.classList.contains('active');
+
+                // Close all items
+                document.querySelectorAll('.faq-item').forEach(el => {
+                    el.classList.remove('active');
+                });
+
+                // Open clicked item if it wasn't already active
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Animated counter for stats
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value + (element.textContent.includes('%') ? '%' : '');
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Animate stats when they come into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumber = entry.target.querySelector('.stat-number');
+                    const value = parseInt(statNumber.textContent);
+                    animateValue(statNumber, 0, value, 2000);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('.stat-card').forEach(card => {
+            observer.observe(card);
+        });
+    </script>
 </body>
 
 </html>
